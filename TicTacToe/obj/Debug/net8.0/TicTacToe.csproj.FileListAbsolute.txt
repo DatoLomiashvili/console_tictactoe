@@ -12,3 +12,4 @@
 /Users/developer/Projects/console_tictactoe/TicTacToe/obj/Debug/net8.0/TicTacToe.pdb
 /Users/developer/Projects/console_tictactoe/TicTacToe/obj/Debug/net8.0/TicTacToe.genruntimeconfig.cache
 /Users/developer/Projects/console_tictactoe/TicTacToe/obj/Debug/net8.0/ref/TicTacToe.dll
+/Users/developer/Projects/console_tictactoe/TicTacToe/obj/Debug/net8.0/TicTacToe.sourcelink.json
