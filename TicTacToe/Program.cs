@@ -1,10 +1,10 @@
-﻿char[] arr = ['0', '1', '2', '3', '4', '5', '6', '7', '8'];
+﻿char[] board = ['0', '1', '2', '3', '4', '5', '6', '7', '8'];
 int[] availableMoves = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 bool usersTurn = Coinflip();
 
 if (usersTurn)
 {
-    Board(arr);
+    Board(board);
 }
 
 
@@ -14,14 +14,14 @@ while (true)
     {
         Thread.Sleep(2000);
 
-        (int, int[]) index =  ComputersTurn(availableMoves);
+        (int, int[]) index =  ComputersTurn(availableMoves, board);
         availableMoves = index.Item2;
-        arr[index.Item1] = 'O';
+        board[index.Item1] = 'O';
         Console.Clear();
-        Board(arr);
+        Board(board);
         Console.WriteLine("The Computer Chose {0}", index.Item1);
         usersTurn = !usersTurn;
-        if (Check(arr))
+        if (CheckWin(board))
         {
             Console.WriteLine("Computer Wins!");
             break;
@@ -30,12 +30,12 @@ while (true)
     else
     {
         (int, int[]) index = PlayersTurn(availableMoves);
-        arr[index.Item1] = 'X';
+        board[index.Item1] = 'X';
         availableMoves = index.Item2;
         Console.Clear();
-        Board(arr);
+        Board(board);
         usersTurn = !usersTurn;
-        if (Check(arr))
+        if (CheckWin(board))
         {
             Console.WriteLine("You Win!");
             break;
@@ -50,17 +50,17 @@ while (true)
 }
 
 
-static void Board(char[] arr)
+static void Board(char[] board)
 {
     Console.WriteLine();
     Console.WriteLine("     |     |      ");
-    Console.WriteLine("  {0}  |  {1}  |  {2}", arr[0], arr[1], arr[2]);
+    Console.WriteLine("  {0}  |  {1}  |  {2}", board[0], board[1], board[2]);
     Console.WriteLine("_____|_____|_____ ");
     Console.WriteLine("     |     |      ");
-    Console.WriteLine("  {0}  |  {1}  |  {2}", arr[3], arr[4], arr[5]);
+    Console.WriteLine("  {0}  |  {1}  |  {2}", board[3], board[4], board[5]);
     Console.WriteLine("_____|_____|_____ ");
     Console.WriteLine("     |     |      ");
-    Console.WriteLine("  {0}  |  {1}  |  {2}", arr[6], arr[7], arr[8]);
+    Console.WriteLine("  {0}  |  {1}  |  {2}", board[6], board[7], board[8]);
     Console.WriteLine("     |     |      ");
 }
 
@@ -104,14 +104,45 @@ static bool Coinflip()
     return userBegins;
 }
 
-static (int, int[]) ComputersTurn(int[] availableMoves)
+static (int, int[]) ComputersTurn(int[] availableMoves, char[] board)
 {
+    int? move = null;
     Random rnd = new Random();
+    char[] boardCopy = [];
+    for (int i = 0; i < availableMoves.Length; i++)
+    {
+        boardCopy = new char[board.Length];
+        Array.Copy(board, boardCopy, board.Length);
+        boardCopy[availableMoves[i]] = 'O';
+        if (CheckWin(boardCopy, 'O'))
+        {
+            move = availableMoves[i];
+            break;
+        };
+    }
     
-    int move = availableMoves[rnd.Next(0, availableMoves.Length)];
-    availableMoves = RemoveIndexFromAvailableMoves(availableMoves, move);
+    for (int i = 0; i < availableMoves.Length; i++)
+    {
+        boardCopy = new char[board.Length];
+        Array.Copy(board, boardCopy, board.Length);
+        boardCopy[availableMoves[i]] = 'X';
+        if (CheckWin(boardCopy, 'X'))
+        {
+            move = availableMoves[i];
+            break;
+        };
+    }
     
-    return (move, availableMoves);
+    if (board[4] == '4' && move == null)
+    {
+        move = 4;
+    }
+    
+    int computerMove = move ?? availableMoves[rnd.Next(0, availableMoves.Length)];
+    Console.WriteLine("Computer Move:" + computerMove);
+    availableMoves = RemoveIndexFromAvailableMoves(availableMoves, computerMove);
+    
+    return (computerMove, availableMoves);
 }
 
 static (int, int[]) PlayersTurn(int[] availableMoves)
@@ -142,7 +173,7 @@ static (int, int[]) PlayersTurn(int[] availableMoves)
     }
 }
 
-bool Check(char[] arr)
+static bool CheckWin(char[] board, char? symbol = null)
 {
     int[][] winningConditions =
     [
@@ -150,7 +181,7 @@ bool Check(char[] arr)
         [0, 3, 6], [1, 4, 7], [2, 5, 8],
         [0, 4, 8], [2, 4, 6]
     ];
-    return winningConditions.Any(wc => wc.All(index => arr[index] == arr[wc[0]]));
+    return winningConditions.Any(wc => wc.All(index => board[index] == (symbol ?? board[wc[0]])));
 }
 
 static int[] RemoveIndexFromAvailableMoves(int[] availableMoves, int move)
